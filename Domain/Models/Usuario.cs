@@ -5,6 +5,7 @@ namespace Domain.Models;
 
 public partial class Usuario : BaseEntity
 {
+
     public string Nombre { get; set; } = null!;
 
     public string Apellidos { get; set; } = null!;
@@ -24,6 +25,4 @@ public partial class Usuario : BaseEntity
     public string Pais { get; set; } = null!;
 
     public string CodigoPostal { get; set; } = null!;
-
-    public virtual ICollection<Reserva> Reservas { get; } = new List<Reserva>();
 }

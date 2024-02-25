@@ -12,5 +12,4 @@ public interface IUnitOfWork
     ILocalidadRepository LocalidadRepository { get; }
     IMercadoRepository MercadoRepository { get; }
 
-
 }

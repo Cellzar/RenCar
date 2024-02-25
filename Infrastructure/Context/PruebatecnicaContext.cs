@@ -20,8 +20,6 @@ public partial class PruebatecnicaContext : DbContext
 
     public virtual DbSet<Mercado> Mercados { get; set; }
 
-    public virtual DbSet<Reserva> Reservas { get; set; }
-
     public virtual DbSet<Usuario> Usuarios { get; set; }
 
     public virtual DbSet<Vehiculo> Vehiculos { get; set; }
@@ -51,22 +49,6 @@ public partial class PruebatecnicaContext : DbContext
             entity.Property(e => e.Nombre).HasMaxLength(255);
         });
 
-        modelBuilder.Entity<Reserva>(entity =>
-        {
-            entity.HasKey(e => e.Id).HasName("PRIMARY");
-
-            entity.ToTable("reservas");
-
-            entity.HasIndex(e => e.UsuarioId, "UsuarioId");
-
-            entity.Property(e => e.FechaDevolucion).HasColumnType("datetime");
-            entity.Property(e => e.FechaRecogida).HasColumnType("datetime");
-
-            entity.HasOne(d => d.Usuario).WithMany(p => p.Reservas)
-                .HasForeignKey(d => d.UsuarioId)
-                .HasConstraintName("reservas_ibfk_1");
-        });
-
         modelBuilder.Entity<Usuario>(entity =>
         {
             entity.HasKey(e => e.Id).HasName("PRIMARY");
@@ -91,15 +73,30 @@ public partial class PruebatecnicaContext : DbContext
 
             entity.ToTable("vehiculos");
 
+            entity.HasIndex(e => e.LocalidadDevolucionId, "LocalidadDevolucionId");
+
+            entity.HasIndex(e => e.LocalidadRecogidaId, "LocalidadRecogidaId");
+
             entity.HasIndex(e => e.MercadoId, "MercadoId");
 
             entity.Property(e => e.Disponible).HasDefaultValueSql("'1'");
             entity.Property(e => e.Marca).HasMaxLength(255);
             entity.Property(e => e.Modelo).HasMaxLength(255);
 
+            entity.HasOne(d => d.LocalidadDevolucion).WithMany(p => p.VehiculoLocalidadDevolucions)
+                .HasForeignKey(d => d.LocalidadDevolucionId)
+                .OnDelete(DeleteBehavior.ClientSetNull)
+                .HasConstraintName("vehiculos_ibfk_2");
+
+            entity.HasOne(d => d.LocalidadRecogida).WithMany(p => p.VehiculoLocalidadRecogida)
+                .HasForeignKey(d => d.LocalidadRecogidaId)
+                .OnDelete(DeleteBehavior.ClientSetNull)
+                .HasConstraintName("vehiculos_ibfk_1");
+
             entity.HasOne(d => d.Mercado).WithMany(p => p.Vehiculos)
                 .HasForeignKey(d => d.MercadoId)
-                .HasConstraintName("vehiculos_ibfk_1");
+                .OnDelete(DeleteBehavior.ClientSetNull)
+                .HasConstraintName("vehiculos_ibfk_3");
         });
 
         OnModelCreatingPartial(modelBuilder);

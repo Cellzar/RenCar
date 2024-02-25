@@ -88,30 +88,16 @@ public class VehiculoController : BaseApiController
     /// </summary>
     /// <param name="dto">DTO que contiene los parámetros de búsqueda.</param>
     /// <returns>Una respuesta HTTP con el resultado de la operación.</returns>
-    [HttpGet("GetVehiculosDisponibles")]
-    public async Task<ActionResult<RespuestaDto>> GetVehiculosDisponiblesAsync([FromQuery] BusquedaVehiculosDto dto)
+    [HttpGet("ObtenerVehiculosDisponiblesPorLocalidades")]
+    public async Task<ActionResult<RespuestaDto>> ObtenerVehiculosDisponiblesPorLocalidades([FromQuery] BusquedaVehiculosDto dto)
     {
         var respuesta = new RespuestaDto();
 
         try
         {
-            var vehiculosDisponibles = await _unitOfWork.VehiculoRepository.ObtenerVehiculosDisponiblesPorRecogida(dto);
+            var vehiculosDisponibles = await _unitOfWork.VehiculoRepository.ObtenerVehiculosDisponiblesPorLocalidades(dto);
 
-            if (vehiculosDisponibles == null)
-            {
-                respuesta.Estado = "Error";
-                respuesta.Mensaje = "No se encontraron vehículos disponibles";
-                respuesta.Ok = false;
-                respuesta.Datos = null;
-                return NotFound(respuesta);
-            }
-
-            respuesta.Estado = "Éxito";
-            respuesta.Mensaje = "Vehículos encontrados correctamente";
-            respuesta.Ok = true;
-            respuesta.Datos = vehiculosDisponibles;
-
-            return Ok(respuesta);
+            return Ok(vehiculosDisponibles);
         }
         catch (Exception ex)
         {
@@ -122,6 +108,61 @@ public class VehiculoController : BaseApiController
             return StatusCode(500, respuesta);
         }
     }
+
+    /// <summary>
+    /// Obtiene vehículos disponibles en base a los parámetros de búsqueda especificados.
+    /// </summary>
+    /// <param name="dto">DTO que contiene los parámetros de búsqueda.</param>
+    /// <returns>Una respuesta HTTP con el resultado de la operación.</returns>
+    [HttpGet("ObtenerVehiculosDisponiblesPorMercadoYLocalidad")]
+    public async Task<ActionResult<RespuestaDto>> ObtenerVehiculosDisponiblesPorMercadoYLocalidad(int mercadoId, string localidadRecogida)
+    {
+        var respuesta = new RespuestaDto();
+
+        try
+        {
+            var vehiculosDisponibles = await _unitOfWork.VehiculoRepository.ObtenerVehiculosDisponiblesPorMercadoYLocalidad(mercadoId, localidadRecogida);
+
+            return Ok(vehiculosDisponibles);
+        }
+        catch (Exception ex)
+        {
+            respuesta.Estado = "Error";
+            respuesta.Mensaje = $"Ha ocurrido un error al obtener los vehículos disponibles: {ex.Message}";
+            respuesta.Ok = false;
+            respuesta.Datos = null;
+            return StatusCode(500, respuesta);
+        }
+    }
+
+
+    /// <summary>
+    /// Obtiene vehículos disponibles en base a los parámetros de búsqueda especificados.
+    /// </summary>
+    /// <param name="dto">DTO que contiene los parámetros de búsqueda.</param>
+    /// <returns>Una respuesta HTTP con el resultado de la operación.</returns>
+    [HttpGet("ObtenerVehiculosDisponiblesPorMercadoYLocalidadDevolucion")]
+    public async Task<ActionResult<RespuestaDto>> ObtenerVehiculosDisponiblesPorMercadoYLocalidadDevolucion(int mercadoId, string localidadDevolucion)
+    {
+        var respuesta = new RespuestaDto();
+
+        try
+        {
+            var vehiculosDisponibles = await _unitOfWork.VehiculoRepository.ObtenerVehiculosDisponiblesPorMercadoYLocalidadDevolucion(mercadoId, localidadDevolucion);
+
+            return Ok(vehiculosDisponibles);
+        }
+        catch (Exception ex)
+        {
+            respuesta.Estado = "Error";
+            respuesta.Mensaje = $"Ha ocurrido un error al obtener los vehículos disponibles: {ex.Message}";
+            respuesta.Ok = false;
+            respuesta.Datos = null;
+            return StatusCode(500, respuesta);
+        }
+    }
+
+
 
     /// <summary>
     /// Crea un nuevo Vehiculo.
@@ -180,7 +221,6 @@ public class VehiculoController : BaseApiController
                 return NotFound(respuesta);
             }
 
-            VehiculoExistente.Year = vehiculo.Year;
             VehiculoExistente.Marca = vehiculo.Marca;
             VehiculoExistente.Modelo = vehiculo.Modelo;
             VehiculoExistente.Disponible = vehiculo.Disponible;

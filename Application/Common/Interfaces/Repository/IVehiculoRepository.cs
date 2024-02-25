@@ -10,5 +10,7 @@ namespace Application.Common.Interfaces.Repository;
 
 public interface IVehiculoRepository : IGenericRepository<Vehiculo>
 {
-    Task<IEnumerable<Vehiculo>> ObtenerVehiculosDisponiblesPorRecogida(BusquedaVehiculosDto dto);
+    Task<RespuestaDto> ObtenerVehiculosDisponiblesPorLocalidades(BusquedaVehiculosDto dt);
+    Task<RespuestaDto> ObtenerVehiculosDisponiblesPorMercadoYLocalidad(int mercadoId, string localidadRecogida);
+    Task<RespuestaDto> ObtenerVehiculosDisponiblesPorMercadoYLocalidadDevolucion(int mercadoId, string localidadDevolucion);
 }

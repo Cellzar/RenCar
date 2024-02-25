@@ -15,22 +15,123 @@ public class VehiculoRepository : GenericRepository<Vehiculo>, IVehiculoReposito
         _context = context;
     }
 
-    public async Task<IEnumerable<Vehiculo>> ObtenerVehiculosDisponiblesPorRecogida(BusquedaVehiculosDto dto)
+    public async Task<RespuestaDto> ObtenerVehiculosDisponiblesPorLocalidades(BusquedaVehiculosDto dt)
     {
-        var localidadRecogida = await _context.Localidades.Where(l => l.Id == dto.LocalidadRecogidaId).Select(l => l.Id).FirstOrDefaultAsync();
-        var localidadDevolucion = await _context.Localidades.Where(l => l.Id == dto.LocalidadDevolucionId).Select(l => l.Id).FirstOrDefaultAsync();
+        RespuestaDto respuesta = new RespuestaDto();
 
-        var vehiculosDisponibles = await _context.Vehiculos
-            .Include(v => v.Mercado)
-            .Where(v => (bool)v.Disponible && v.MercadoId == dto.MercadoId)
-            .ToListAsync();
+        try
+        {
+            List<Vehiculo> vehiculosDisponibles = await _context.Vehiculos
+                .Include(v => v.LocalidadRecogida)
+                .Include(v => v.LocalidadDevolucion)
+                .Where(v => v.LocalidadRecogida.Id == dt.LocalidadRecogidaId
+                         && v.LocalidadDevolucion.Id == dt.LocalidadDevolucionId
+                         && (bool)v.Disponible)
+                .ToListAsync();
 
-        var reservas = await _context.Reservas
-            .Where(r => r.FechaRecogida <= DateTime.Now && r.FechaDevolucion >= DateTime.Now)
-            .ToListAsync();
+            if (vehiculosDisponibles == null || vehiculosDisponibles.Count == 0)
+            {
+                respuesta.Estado = "Error";
+                respuesta.Mensaje = "No se encontraron vehículos disponibles para las localidades especificadas";
+                respuesta.Ok = false;
+                respuesta.Datos = null;
+            }
+            else
+            {
+                respuesta.Estado = "Éxito";
+                respuesta.Mensaje = "Se encontraron vehículos disponibles correctamente";
+                respuesta.Ok = true;
+                respuesta.Datos = vehiculosDisponibles;
+            }
+        }
+        catch (Exception ex)
+        {
+            respuesta.Estado = "Error";
+            respuesta.Mensaje = $"Ha ocurrido un error al obtener los vehículos disponibles: {ex.Message}";
+            respuesta.Ok = false;
+            respuesta.Datos = null;
+        }
 
-        var vehiculosReservados = reservas.Select(r => r.VehiculoId).ToList();
+        return respuesta;
+    }
 
-        return vehiculosDisponibles.Where(v => !vehiculosReservados.Contains(v.Id)).ToList();
+    public async Task<RespuestaDto> ObtenerVehiculosDisponiblesPorMercadoYLocalidad(int mercadoId, string localidadRecogida)
+    {
+        RespuestaDto respuesta = new RespuestaDto();
+
+        try
+        {
+            List<Vehiculo> vehiculosDisponibles = await _context.Vehiculos
+                .Include(v => v.LocalidadRecogida)
+                .Include(v => v.Mercado)
+                .Where(v => v.MercadoId == mercadoId
+                         && v.LocalidadRecogida.Nombre == localidadRecogida
+                         && (bool)v.Disponible)
+                .ToListAsync();
+
+            if (vehiculosDisponibles == null || vehiculosDisponibles.Count == 0)
+            {
+                respuesta.Estado = "Error";
+                respuesta.Mensaje = "No se encontraron vehículos disponibles para el mercado y la localidad especificados";
+                respuesta.Ok = false;
+                respuesta.Datos = null;
+            }
+            else
+            {
+                respuesta.Estado = "Éxito";
+                respuesta.Mensaje = "Se encontraron vehículos disponibles correctamente";
+                respuesta.Ok = true;
+                respuesta.Datos = vehiculosDisponibles;
+            }
+        }
+        catch (Exception ex)
+        {
+            respuesta.Estado = "Error";
+            respuesta.Mensaje = $"Ha ocurrido un error al obtener los vehículos disponibles: {ex.Message}";
+            respuesta.Ok = false;
+            respuesta.Datos = null;
+        }
+
+        return respuesta;
+    }
+
+    public async Task<RespuestaDto> ObtenerVehiculosDisponiblesPorMercadoYLocalidadDevolucion(int mercadoId, string localidadDevolucion)
+    {
+        RespuestaDto respuesta = new RespuestaDto();
+
+        try
+        {
+            List<Vehiculo> vehiculosDisponibles = await _context.Vehiculos
+                .Include(v => v.LocalidadDevolucion)
+                .Include(v => v.Mercado)
+                .Where(v => v.MercadoId == mercadoId
+                         && v.LocalidadDevolucion.Nombre == localidadDevolucion
+                         && (bool)v.Disponible)
+                .ToListAsync();
+
+            if (vehiculosDisponibles == null || vehiculosDisponibles.Count == 0)
+            {
+                respuesta.Estado = "Error";
+                respuesta.Mensaje = "No se encontraron vehículos disponibles para el mercado y la localidad de devolución especificados";
+                respuesta.Ok = false;
+                respuesta.Datos = null;
+            }
+            else
+            {
+                respuesta.Estado = "Éxito";
+                respuesta.Mensaje = "Se encontraron vehículos disponibles correctamente";
+                respuesta.Ok = true;
+                respuesta.Datos = vehiculosDisponibles;
+            }
+        }
+        catch (Exception ex)
+        {
+            respuesta.Estado = "Error";
+            respuesta.Mensaje = $"Ha ocurrido un error al obtener los vehículos disponibles: {ex.Message}";
+            respuesta.Ok = false;
+            respuesta.Datos = null;
+        }
+
+        return respuesta;
     }
 }

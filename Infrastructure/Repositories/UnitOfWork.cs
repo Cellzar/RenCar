@@ -14,14 +14,6 @@ public class UnitOfWork : IUnitOfWork
         _context = context;
     }
 
-    public IUsuarioRepository UsuarioRepository => new UsuarioRepository(_context);
-
-    public IVehiculoRepository VehiculoRepository => new VehiculoRepository(_context);
-
-    public ILocalidadRepository LocalidadRepository => new LocalidadRepository(_context);
-
-    public IMercadoRepository MercadoRepository => new MercadoRepository(_context);
-
 
     public void SaveChanges()
     {
@@ -37,4 +29,13 @@ public class UnitOfWork : IUnitOfWork
     {
         get { return _context.Database; }
     }
+
+    public IUsuarioRepository UsuarioRepository => new UsuarioRepository(_context);
+
+    public IVehiculoRepository VehiculoRepository => new VehiculoRepository(_context);
+
+    public ILocalidadRepository LocalidadRepository => new LocalidadRepository(_context);
+
+    public IMercadoRepository MercadoRepository => new MercadoRepository(_context);
+
 }
