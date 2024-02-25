@@ -1,12 +1,8 @@
 ﻿using Application.Common.Interfaces.Repository;
+using Domain.DTO;
 using Domain.Models;
 using Infrastructure.Context;
 using Microsoft.EntityFrameworkCore;
-using System;
-using System.Collections.Generic;
-using System.Linq;
-using System.Text;
-using System.Threading.Tasks;
 
 namespace Infrastructure.Persistence.Repositories;
 
@@ -19,14 +15,14 @@ public class VehiculoRepository : GenericRepository<Vehiculo>, IVehiculoReposito
         _context = context;
     }
 
-    public async Task<IEnumerable<Vehiculo>> ObtenerVehiculosDisponiblesPorRecogida(int localidadRecogidaId, int localidadDevolucionId, int mercadoId)
+    public async Task<IEnumerable<Vehiculo>> ObtenerVehiculosDisponiblesPorRecogida(BusquedaVehiculosDto dto)
     {
-        var localidadRecogida = await _context.Localidades.Where(l => l.Id == localidadRecogidaId).Select(l => l.Id).FirstOrDefaultAsync();
-        var localidadDevolucion = await _context.Localidades.Where(l => l.Id == localidadDevolucionId).Select(l => l.Id).FirstOrDefaultAsync();
+        var localidadRecogida = await _context.Localidades.Where(l => l.Id == dto.LocalidadRecogidaId).Select(l => l.Id).FirstOrDefaultAsync();
+        var localidadDevolucion = await _context.Localidades.Where(l => l.Id == dto.LocalidadDevolucionId).Select(l => l.Id).FirstOrDefaultAsync();
 
         var vehiculosDisponibles = await _context.Vehiculos
             .Include(v => v.Mercado)
-            .Where(v => (bool)v.Disponible && v.MercadoId == mercadoId)
+            .Where(v => (bool)v.Disponible && v.MercadoId == dto.MercadoId)
             .ToListAsync();
 
         var reservas = await _context.Reservas

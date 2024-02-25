@@ -1,4 +1,5 @@
-﻿using Domain.Models;
+﻿using Domain.DTO;
+using Domain.Models;
 using System;
 using System.Collections.Generic;
 using System.Linq;
@@ -9,5 +10,5 @@ namespace Application.Common.Interfaces.Repository;
 
 public interface IVehiculoRepository : IGenericRepository<Vehiculo>
 {
-    Task<IEnumerable<Vehiculo>> ObtenerVehiculosDisponiblesPorRecogida(int localidadRecogidaId, int localidadDevolucionId, int mercadoId);
+    Task<IEnumerable<Vehiculo>> ObtenerVehiculosDisponiblesPorRecogida(BusquedaVehiculosDto dto);
 }
