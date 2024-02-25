@@ -5,16 +5,16 @@ using Microsoft.AspNetCore.Mvc;
 
 namespace Web.Controllers;
 
-public class UsuariosController : BaseApiController
+public class MercadoController : BaseApiController
 {
     private readonly IUnitOfWork _unitOfWork;
-    public UsuariosController(IUnitOfWork unitOfWork)
+    public MercadoController(IUnitOfWork unitOfWork)
     {
         _unitOfWork = unitOfWork;
     }
 
     /// <summary>
-    /// Obtiene todos los usuarios.
+    /// Obtiene todos los mercados.
     /// </summary>
     /// <returns>Una respuesta HTTP con el resultado de la operación.</returns>
     [HttpGet]
@@ -24,7 +24,7 @@ public class UsuariosController : BaseApiController
 
         try
         {
-            var datos = await _unitOfWork.UsuarioRepository.GetAll();
+            var datos = await _unitOfWork.MercadoRepository.GetAll();
 
             respuesta.Estado = "Éxito";
             respuesta.Mensaje = "Datos obtenidos correctamente";
@@ -44,7 +44,7 @@ public class UsuariosController : BaseApiController
     }
 
     /// <summary>
-    /// Obtiene un usuario por su ID.
+    /// Obtiene un mercado por su ID.
     /// </summary>
     /// <param name="id">El ID del usuario a obtener.</param>
     /// <returns>Una respuesta HTTP con el resultado de la operación.</returns>
@@ -55,28 +55,28 @@ public class UsuariosController : BaseApiController
 
         try
         {
-            var usuario = await _unitOfWork.UsuarioRepository.GetById(id);
+            var mercado = await _unitOfWork.MercadoRepository.GetById(id);
 
-            if (usuario == null)
+            if (mercado == null)
             {
                 respuesta.Estado = "Error";
-                respuesta.Mensaje = $"Usuario con ID {id} no encontrado";
+                respuesta.Mensaje = $"Mercado con ID {id} no encontrado";
                 respuesta.Ok = false;
                 respuesta.Datos = null;
                 return NotFound(respuesta);
             }
 
             respuesta.Estado = "Éxito";
-            respuesta.Mensaje = "Usuario encontrado correctamente";
+            respuesta.Mensaje = "Mercado encontrado correctamente";
             respuesta.Ok = true;
-            respuesta.Datos = usuario;
+            respuesta.Datos = mercado;
 
             return Ok(respuesta);
         }
         catch (Exception ex)
         {
             respuesta.Estado = "Error";
-            respuesta.Mensaje = $"Ha ocurrido un error al obtener el usuario con ID {id}: {ex.Message}";
+            respuesta.Mensaje = $"Ha ocurrido un error al obtener el mercado con ID {id}: {ex.Message}";
             respuesta.Ok = false;
             respuesta.Datos = null;
             return StatusCode(500, respuesta);
@@ -85,32 +85,32 @@ public class UsuariosController : BaseApiController
 
 
     /// <summary>
-    /// Crea un nuevo usuario.
+    /// Crea un nuevo mercado.
     /// </summary>
-    /// <param name="usuario">El usuario a crear.</param>
+    /// <param name="usuario">El Mercado a crear.</param>
     /// <returns>Una respuesta HTTP con el resultado de la operación.</returns>
     [HttpPost]
-    public async Task<ActionResult<RespuestaDto>> Create([FromBody] Usuario usuario)
+    public async Task<ActionResult<RespuestaDto>> Create([FromBody] Mercado mercado)
     {
         var respuesta = new RespuestaDto();
 
         try
         {
 
-            await _unitOfWork.UsuarioRepository.Add(usuario);
+            await _unitOfWork.MercadoRepository.Add(mercado);
             await _unitOfWork.SaveChangesAsync();
 
             respuesta.Estado = "Éxito";
-            respuesta.Mensaje = "Usuario creado correctamente";
+            respuesta.Mensaje = "Mercado creado correctamente";
             respuesta.Ok = true;
-            respuesta.Datos = usuario;
+            respuesta.Datos = mercado;
 
             return Ok(respuesta);
         }
         catch (Exception ex)
         {
             respuesta.Estado = "Error";
-            respuesta.Mensaje = "Ha ocurrido un error al crear el usuario: " + ex.Message;
+            respuesta.Mensaje = "Ha ocurrido un error al crear el mercado: " + ex.Message;
             respuesta.Ok = false;
             respuesta.Datos = null;
             return StatusCode(500, respuesta);
@@ -118,50 +118,45 @@ public class UsuariosController : BaseApiController
     }
 
     /// <summary>
-    /// Actualiza un usuario existente.
+    /// Actualiza un mercado existente.
     /// </summary>
-    /// <param name="id">El ID del usuario a actualizar.</param>
-    /// <param name="usuario">El objeto Usuario con los datos actualizados.</param>
+    /// <param name="id">El ID del mercado a actualizar.</param>
+    /// <param name="mercado">El objeto Mercado con los datos actualizados.</param>
     /// <returns>Una respuesta HTTP con el resultado de la operación.</returns>
     [HttpPut("{id}")]
-    public async Task<ActionResult<RespuestaDto>> Update(int id, [FromBody] Usuario usuario)
+    public async Task<ActionResult<RespuestaDto>> Update(int id, [FromBody] Mercado mercado)
     {
         var respuesta = new RespuestaDto();
 
         try
         {
-            var usuarioExistente = await _unitOfWork.UsuarioRepository.GetById(id);
+            var mercadoExistente = await _unitOfWork.MercadoRepository.GetById(id);
 
-            if (usuarioExistente == null)
+            if (mercadoExistente == null)
             {
                 respuesta.Estado = "Error";
-                respuesta.Mensaje = $"Usuario con ID {id} no encontrado";
+                respuesta.Mensaje = $"Mercado con ID {id} no encontrado";
                 respuesta.Ok = false;
                 respuesta.Datos = null;
                 return NotFound(respuesta);
             }
 
-            usuarioExistente.Nombre = usuario.Nombre;
-            usuarioExistente.Apellidos = usuario.Apellidos;
-            usuarioExistente.Email = usuario.Email;
-            usuarioExistente.Ciudad = usuario.Ciudad;
-            usuarioExistente.CodigoPostal = usuario.CodigoPostal;
-            usuarioExistente.Direccion = usuario.Direccion;
+            mercadoExistente.Nombre = mercado.Nombre;
 
-            _unitOfWork.UsuarioRepository.Update(usuarioExistente);
+            _unitOfWork.MercadoRepository.Update(mercadoExistente);
             await _unitOfWork.SaveChangesAsync();
 
             respuesta.Estado = "Éxito";
-            respuesta.Mensaje = $"Usuario con ID {id} actualizado correctamente";
+            respuesta.Mensaje = $"Mercado con ID {id} actualizado correctamente";
             respuesta.Ok = true;
-            respuesta.Datos = usuarioExistente;
+            respuesta.Datos = mercadoExistente;
 
             return Ok(respuesta);
         }
         catch (Exception ex)
         {
             respuesta.Estado = "Error";
-            respuesta.Mensaje = $"Ha ocurrido un error al actualizar el usuario con ID {id}: {ex.Message}";
+            respuesta.Mensaje = $"Ha ocurrido un error al actualizar el mercado con ID {id}: {ex.Message}";
             respuesta.Ok = false;
             respuesta.Datos = null;
             return StatusCode(500, respuesta);
@@ -169,9 +164,9 @@ public class UsuariosController : BaseApiController
     }
 
     /// <summary>
-    /// Elimina un usuario existente.
+    /// Elimina un mercado existente.
     /// </summary>
-    /// <param name="id">El ID del usuario a eliminar.</param>
+    /// <param name="id">El ID del mercado a eliminar.</param>
     /// <returns>Una respuesta HTTP con el resultado de la operación.</returns>
     [HttpDelete("{id}")]
     public async Task<ActionResult<RespuestaDto>> Delete(int id)
@@ -180,22 +175,22 @@ public class UsuariosController : BaseApiController
 
         try
         {
-            var usuarioExistente = await _unitOfWork.UsuarioRepository.GetById(id);
+            var mercadoExistente = await _unitOfWork.MercadoRepository.GetById(id);
 
-            if (usuarioExistente == null)
+            if (mercadoExistente == null)
             {
                 respuesta.Estado = "Error";
-                respuesta.Mensaje = $"Usuario con ID {id} no encontrado";
+                respuesta.Mensaje = $"Mercado con ID {id} no encontrado";
                 respuesta.Ok = false;
                 respuesta.Datos = null;
                 return NotFound(respuesta);
             }
 
-            _unitOfWork.UsuarioRepository.Delete(id);
+            _unitOfWork.MercadoRepository.Delete(id);
             await _unitOfWork.SaveChangesAsync();
 
             respuesta.Estado = "Éxito";
-            respuesta.Mensaje = $"Usuario con ID {id} eliminado correctamente";
+            respuesta.Mensaje = $"Mercado con ID {id} eliminado correctamente";
             respuesta.Ok = true;
             respuesta.Datos = null;
 
@@ -204,11 +199,10 @@ public class UsuariosController : BaseApiController
         catch (Exception ex)
         {
             respuesta.Estado = "Error";
-            respuesta.Mensaje = $"Ha ocurrido un error al eliminar el usuario con ID {id}: {ex.Message}";
+            respuesta.Mensaje = $"Ha ocurrido un error al eliminar el mercado con ID {id}: {ex.Message}";
             respuesta.Ok = false;
             respuesta.Datos = null;
             return StatusCode(500, respuesta);
         }
     }
-
 }

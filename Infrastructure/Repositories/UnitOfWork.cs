@@ -18,6 +18,11 @@ public class UnitOfWork : IUnitOfWork
 
     public IVehiculoRepository VehiculoRepository => new VehiculoRepository(_context);
 
+    public ILocalidadRepository LocalidadRepository => new LocalidadRepository(_context);
+
+    public IMercadoRepository MercadoRepository => new MercadoRepository(_context);
+
+
     public void SaveChanges()
     {
         _context.SaveChanges();

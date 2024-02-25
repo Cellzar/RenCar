@@ -2,6 +2,6 @@
 
 namespace Application.Common.Interfaces.Repository;
 
-public interface IUsuarioRepository: IGenericRepository<Usuario>
+public interface ILocalidadRepository : IGenericRepository<Localidade>
 {
 }

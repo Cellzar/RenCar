@@ -14,5 +14,7 @@ public interface IUnitOfWork
     DatabaseFacade Database { get; }
     IUsuarioRepository UsuarioRepository { get; }
     IVehiculoRepository VehiculoRepository { get; }
+    ILocalidadRepository LocalidadRepository { get; }
+    IMercadoRepository MercadoRepository { get; }
 
 }
