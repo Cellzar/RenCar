@@ -4,9 +4,8 @@ using System.Linq;
 using System.Text;
 using System.Threading.Tasks;
 
-namespace Domain.Services.QueryHandlers
+namespace Application.Services;
+
+internal class UsuarioService
 {
-    internal class SearchVehiclesQueryHandler
-    {
-    }
 }

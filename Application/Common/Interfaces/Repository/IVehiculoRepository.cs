@@ -5,10 +5,10 @@ using System.Linq;
 using System.Text;
 using System.Threading.Tasks;
 
-namespace Domain.Interfaces
+namespace Application.Common.Interfaces.Repository
 {
     public interface IVehiculoRepository : IGenericRepository<Vehiculo>
     {
-        Task<IEnumerable<Vehiculo>> GetDisponibles(int localidadRecogidaId, int localidadDevolucionId, int mercadoId);
+        Task<IEnumerable<Vehiculo>> ObtenerVehiculosDisponiblesPorRecogida(int localidadRecogidaId, int localidadDevolucionId, int mercadoId);
     }
 }

@@ -1,5 +1,6 @@
 using Infrastructure.Context;
 using Microsoft.EntityFrameworkCore;
+using Infrastructure;
 
 var builder = WebApplication.CreateBuilder(args);
 
@@ -11,11 +12,8 @@ builder.Services.AddEndpointsApiExplorer();
 builder.Services.AddSwaggerGen();
 
 
-builder.Services.AddDbContext<PruebatecnicaContext>(options =>
-{
-    string connectionString = builder.Configuration.GetConnectionString("DefaultConnection");
-    options.UseMySql(connectionString, ServerVersion.AutoDetect(connectionString));
-});
+builder.Services.AddDbContext(builder.Configuration);
+builder.Services.AddApplicationServices();
 
 var app = builder.Build();
 

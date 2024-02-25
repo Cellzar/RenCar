@@ -16,15 +16,16 @@ public partial class PruebatecnicaContext : DbContext
     {
     }
 
-    public virtual DbSet<Alquilere> Alquileres { get; set; }
-
-    public virtual DbSet<Cliente> Clientes { get; set; }
-
     public virtual DbSet<Localidade> Localidades { get; set; }
 
     public virtual DbSet<Mercado> Mercados { get; set; }
 
+    public virtual DbSet<Reserva> Reservas { get; set; }
+
+    public virtual DbSet<Usuario> Usuarios { get; set; }
+
     public virtual DbSet<Vehiculo> Vehiculos { get; set; }
+
 
     protected override void OnModelCreating(ModelBuilder modelBuilder)
     {
@@ -32,55 +33,13 @@ public partial class PruebatecnicaContext : DbContext
             .UseCollation("utf8mb4_0900_ai_ci")
             .HasCharSet("utf8mb4");
 
-        modelBuilder.Entity<Alquilere>(entity =>
-        {
-            entity.HasKey(e => e.Id).HasName("PRIMARY");
-
-            entity.ToTable("alquileres");
-
-            entity.HasIndex(e => e.ClienteId, "ClienteID");
-
-            entity.HasIndex(e => e.VehiculoId, "VehiculoID");
-
-            entity.Property(e => e.Id)
-                .ValueGeneratedNever()
-                .HasColumnName("ID");
-            entity.Property(e => e.ClienteId).HasColumnName("ClienteID");
-            entity.Property(e => e.VehiculoId).HasColumnName("VehiculoID");
-
-            entity.HasOne(d => d.Cliente).WithMany(p => p.Alquileres)
-                .HasForeignKey(d => d.ClienteId)
-                .HasConstraintName("alquileres_ibfk_1");
-
-            entity.HasOne(d => d.Vehiculo).WithMany(p => p.Alquileres)
-                .HasForeignKey(d => d.VehiculoId)
-                .HasConstraintName("alquileres_ibfk_2");
-        });
-
-        modelBuilder.Entity<Cliente>(entity =>
-        {
-            entity.HasKey(e => e.Id).HasName("PRIMARY");
-
-            entity.ToTable("clientes");
-
-            entity.Property(e => e.Id)
-                .ValueGeneratedNever()
-                .HasColumnName("ID");
-            entity.Property(e => e.Email).HasMaxLength(100);
-            entity.Property(e => e.Nombre).HasMaxLength(100);
-            entity.Property(e => e.Telefono).HasMaxLength(20);
-        });
-
         modelBuilder.Entity<Localidade>(entity =>
         {
             entity.HasKey(e => e.Id).HasName("PRIMARY");
 
             entity.ToTable("localidades");
 
-            entity.Property(e => e.Id)
-                .ValueGeneratedNever()
-                .HasColumnName("ID");
-            entity.Property(e => e.Nombre).HasMaxLength(100);
+            entity.Property(e => e.Nombre).HasMaxLength(255);
         });
 
         modelBuilder.Entity<Mercado>(entity =>
@@ -89,17 +48,41 @@ public partial class PruebatecnicaContext : DbContext
 
             entity.ToTable("mercados");
 
-            entity.HasIndex(e => e.LocalidadId, "LocalidadID");
+            entity.Property(e => e.Nombre).HasMaxLength(255);
+        });
 
-            entity.Property(e => e.Id)
-                .ValueGeneratedNever()
-                .HasColumnName("ID");
-            entity.Property(e => e.LocalidadId).HasColumnName("LocalidadID");
-            entity.Property(e => e.Nombre).HasMaxLength(100);
+        modelBuilder.Entity<Reserva>(entity =>
+        {
+            entity.HasKey(e => e.Id).HasName("PRIMARY");
 
-            entity.HasOne(d => d.Localidad).WithMany(p => p.Mercados)
-                .HasForeignKey(d => d.LocalidadId)
-                .HasConstraintName("mercados_ibfk_1");
+            entity.ToTable("reservas");
+
+            entity.HasIndex(e => e.UsuarioId, "UsuarioId");
+
+            entity.Property(e => e.FechaDevolucion).HasColumnType("datetime");
+            entity.Property(e => e.FechaRecogida).HasColumnType("datetime");
+
+            entity.HasOne(d => d.Usuario).WithMany(p => p.Reservas)
+                .HasForeignKey(d => d.UsuarioId)
+                .HasConstraintName("reservas_ibfk_1");
+        });
+
+        modelBuilder.Entity<Usuario>(entity =>
+        {
+            entity.HasKey(e => e.Id).HasName("PRIMARY");
+
+            entity.ToTable("usuarios");
+
+            entity.HasIndex(e => e.Email, "Email").IsUnique();
+
+            entity.Property(e => e.Apellidos).HasMaxLength(255);
+            entity.Property(e => e.Ciudad).HasMaxLength(255);
+            entity.Property(e => e.CodigoPostal).HasMaxLength(10);
+            entity.Property(e => e.Contrasena).HasMaxLength(255);
+            entity.Property(e => e.Direccion).HasMaxLength(255);
+            entity.Property(e => e.Nombre).HasMaxLength(25);
+            entity.Property(e => e.Pais).HasMaxLength(255);
+            entity.Property(e => e.Telefono).HasMaxLength(50);
         });
 
         modelBuilder.Entity<Vehiculo>(entity =>
@@ -108,18 +91,14 @@ public partial class PruebatecnicaContext : DbContext
 
             entity.ToTable("vehiculos");
 
-            entity.HasIndex(e => e.LocalidadId, "LocalidadID");
+            entity.HasIndex(e => e.MercadoId, "MercadoId");
 
-            entity.Property(e => e.Id)
-                .ValueGeneratedNever()
-                .HasColumnName("ID");
-            entity.Property(e => e.LocalidadId).HasColumnName("LocalidadID");
-            entity.Property(e => e.Marca).HasMaxLength(100);
-            entity.Property(e => e.Modelo).HasMaxLength(100);
-            entity.Property(e => e.Disponible).HasColumnType("TINYINT(1)");
+            entity.Property(e => e.Disponible).HasDefaultValueSql("'1'");
+            entity.Property(e => e.Marca).HasMaxLength(255);
+            entity.Property(e => e.Modelo).HasMaxLength(255);
 
-            entity.HasOne(d => d.Localidad).WithMany(p => p.Vehiculos)
-                .HasForeignKey(d => d.LocalidadId)
+            entity.HasOne(d => d.Mercado).WithMany(p => p.Vehiculos)
+                .HasForeignKey(d => d.MercadoId)
                 .HasConstraintName("vehiculos_ibfk_1");
         });
 

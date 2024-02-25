@@ -1,4 +1,5 @@
-﻿using Domain.Interfaces;
+﻿using Application.Common.Exceptions;
+using Application.Common.Interfaces.Repository;
 using Domain.Models;
 using Infrastructure.Context;
 using Microsoft.EntityFrameworkCore;
@@ -13,74 +14,64 @@ namespace Infrastructure.Persistence.Repositories;
 
 public class GenericRepository<T> : IGenericRepository<T> where T : BaseEntity
 {
-    protected readonly PruebatecnicaContext _context;
+    protected DbSet<T> _entities;
 
-    public GenericRepository(PruebatecnicaContext context, bool noTracking = true)
+    public GenericRepository(DbContext dbContext)
     {
-        _context = context;
+        this._entities = dbContext.Set<T>();
     }
 
-    public virtual void Add(T entity)
+    public async Task<List<T>> GetAll()
     {
-        _context.Set<T>().Add(entity);
+
+        return await _entities.ToListAsync();
     }
 
-    public virtual void AddRange(IEnumerable<T> entities)
+    public async Task<List<T>> GetAll(Expression<Func<T, bool>> predicate)
     {
-        _context.Set<T>().AddRange(entities);
+
+        return await _entities.Where(predicate).ToListAsync();
     }
 
-    public virtual IEnumerable<T> Find(Expression<Func<T, bool>> expression, bool noTracking = true)
+    public async Task<T?> GetById(int id) => await _entities.FindAsync(id);
+
+    public async Task<T?> Get(Expression<Func<T, bool>> predicate)
     {
-        return noTracking ? _context.Set<T>().AsNoTracking().Where(expression)
-                          : _context.Set<T>().Where(expression);
+
+        return await _entities.Where(predicate).FirstOrDefaultAsync();
     }
 
-    public virtual async Task<IEnumerable<T>> GetAllAsync(bool noTracking = true)
+    public async Task Add(T entity)
     {
-        return noTracking ? await _context.Set<T>().AsNoTracking().ToListAsync()
-                          : await _context.Set<T>().ToListAsync();
+
+        await _entities.AddAsync(entity);
     }
 
-    public virtual async Task<(int totalRegistros, IEnumerable<T> registros)> GetAllAsync(int pageIndex, int pageSize, string search, bool noTracking = true)
+    public async Task Delete(int id)
     {
-        var query = noTracking ? _context.Set<T>().AsNoTracking().AsQueryable()
-                               : _context.Set<T>().AsQueryable();
 
-        var totalRegistros = await query.CountAsync();
-
-        var registros = await query
-                            .Skip((pageIndex - 1) * pageSize)
-                            .Take(pageSize)
-                            .ToListAsync();
-        return (totalRegistros, registros);
-    }
-
-    public virtual async Task<T> GetByIdAsync(int id, bool noTracking = true)
-    {
-        var entity = await _context.Set<T>().FindAsync(id);
-
-        if (noTracking)
+        T? entity = await GetById(id);
+        if (entity != null)
         {
-            _context.Entry(entity).State = EntityState.Detached;
+            this._entities.Remove(entity);
         }
-
-        return entity;
     }
 
-    public virtual void Remove(T entity)
+    public void Update(T entity)
     {
-        _context.Set<T>().Remove(entity);
-    }
 
-    public virtual void RemoveRange(IEnumerable<T> entities)
-    {
-        _context.Set<T>().RemoveRange(entities);
+        try
+        {
+            _entities.Update(entity);
+        }
+        catch (Exception ex)
+        {
+            throw new GeneralException($"ExMessage: {ex.Message}");
+        }
     }
-
-    public virtual void Update(T entity)
+    public async Task<int> CountRecord()
     {
-        _context.Set<T>()
-            .Update(entity);
+
+        return await _entities.CountAsync();
     }
 }
